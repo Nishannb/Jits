@@ -43,7 +43,7 @@ const stylesComponent = () =>{
         }, 
         singleRecommendationTextDescription: {
             color: 'grey',
-            maxWidth: width / 1.5,
+            maxWidth: width / 1.6,
             maxHeight: 60,
         }
     })

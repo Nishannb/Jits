@@ -1,81 +1,21 @@
-import {View, Text, ScrollView, Image} from 'react-native';
-import React from 'react';
+import {View, Text, ScrollView, Image, Alert} from 'react-native';
+import React, { useContext, useEffect, useState } from 'react';
 import stylesComponent from './style';
 import restaurant from '../../img/download.jpeg';
 import cafe from '../../img/cafe.jpeg'
 import nextCafe from '../../img/cafe2.jpeg'
 import bar from '../../img/bar.jpeg'
 import nextBar from '../../img/bar2.jpeg'
+import { PropertiesInfoContext } from '../../Components/Contexts/AllContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
-const places = [
-  {
-    name: "Udon Mise",
-    openingHours: "8:00 AM - 10:00 PM",
-    description: "People often go to this place for enjoyment. Best place in town.",
-    image: cafe,
-  },
-  {
-    name: "Café de Paris",
-    openingHours: "7:00 AM - 9:00 PM",
-    description: "A cozy café with a wide range of delicious pastries and coffee.",
-    image: bar,
-  },
-  {
-    name: "Sunset Grill",
-    openingHours: "11:00 AM - 11:00 PM",
-    description: "Enjoy mouthwatering grilled dishes while watching the sunset.",
-    image: nextCafe,
-  },
-  {
-    name: "Sushi Haven",
-    openingHours: "12:00 PM - 10:00 PM",
-    description: "A haven for sushi lovers with fresh and authentic Japanese cuisine.",
-    image: nextBar,
-  },
-  {
-    name: "Pizzeria Italia",
-    openingHours: "11:30 AM - 9:30 PM",
-    description: "Experience the taste of Italy with our authentic wood-fired pizzas.",
-    image: restaurant,
-  },
-  {
-    name: "Taco Shack",
-    openingHours: "10:00 AM - 8:00 PM",
-    description: "Satisfy your craving for tacos with our flavorful and diverse selection.",
-    image: cafe,
-  },
-  {
-    name: "Burger Joint",
-    openingHours: "11:00 AM - 10:00 PM",
-    description: "Indulge in juicy burgers made from the finest ingredients.",
-    image: nextBar,
-  },
-  {
-    name: "Gelato Delight",
-    openingHours: "12:00 PM - 9:00 PM",
-    description: "Cool off with a delightful variety of artisanal gelato flavors.",
-    image: bar,
-  },
-  {
-    name: "Tea Garden",
-    openingHours: "9:00 AM - 7:00 PM",
-    description: "Relax and unwind in our serene tea garden with a wide selection of teas.",
-    image: nextCafe,
-  },
-  {
-    name: "Barbecue Pit",
-    openingHours: "5:00 PM - 12:00 AM",
-    description: "Feast on smoky barbecue dishes cooked to perfection over an open pit.",
-    image: restaurant
-  }
-];
 
 const PlacesList = ({place}) => {
   const styles = stylesComponent();
   return (
     <View style={styles.singleRecommendationContainer}>
-      <Image source={place.image} style={styles.singleRecommendationImage} />
+      <Image src={place.image} style={styles.singleRecommendationImage} />
       <View style={styles.singleRecommendationTextSection}>
         <Text style={styles.singleRecommendationTextHeader}>{place.name}</Text>
         <Text>{place.openingHours}</Text>
@@ -89,16 +29,53 @@ const PlacesList = ({place}) => {
 
 const Recommendation = () => {
   const styles = stylesComponent();
+
+  const { propertiesInfo, setPropertiesInfo } = useContext(PropertiesInfoContext)
+
+  const [ places, setPlaces ] = useState([])
+  useEffect(()=>{
+    const fetch = async()=>{
+      try {
+        const response = await AsyncStorage.getItem('checking')
+        if(response){
+          console.log('its printed: ', JSON.parse(response))
+          Alert.alert( JSON.parse(response))
+        } else {
+          console.log('not printed.')
+        }
+      } catch (error) {
+        console.log('gave error in fetching: ',error)
+      }
+    }
+
+    fetch()
+  }, [])
+
+  useEffect(()=>{
+    if(propertiesInfo.length !=0){
+      const resolvedPlaceList = propertiesInfo[0].nearbyPlaces.map(place => ({
+        name: place.place_name,
+        image: place.place_img,
+        url: place.place_url,
+        description: place.place_description,
+        openingHours: place.place_hours,
+        id: place._id
+      }));
+
+      setPlaces(resolvedPlaceList)
+    }
+
+  }, [propertiesInfo])
   return (
     <View style={styles.recommendationContainer}>
       <View style={styles.recommendationHeaderContainer}>
         <Text style={styles.recommendationHeaderText}>
-          Top 10 Recommendation
+          Top Recommendation
         </Text>
       </View>
       <ScrollView contentContainerStyle={styles.recommendationListSection}>
         {places.map(place => (
-          <PlacesList key={place.description} place={place} />
+          <PlacesList key={place.id} place={place} />
         ))}
       </ScrollView>
     </View>

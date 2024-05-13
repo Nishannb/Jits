@@ -7,7 +7,7 @@ const stylesComponent = ()=>{
             height: height,
             alignItems: 'center',
             backgroundColor: '#fff',
-            marginTop: 5,
+            marginTop: 10,
         },
         welcomeBannerSection: {
             backgroundColor: "#436850",
@@ -59,8 +59,8 @@ const stylesComponent = ()=>{
             backgroundColor: '#fff'
         },
         featureIcon: {
-            height: 40,
-            width: 40
+            height: 30,
+            width: 30,
         },
         featureText: {
             marginTop: 10,
@@ -78,7 +78,7 @@ const stylesComponent = ()=>{
             shadowOpacity: 0.3, 
             shadowRadius: 4, 
             elevation: 4, 
-            height: height /2
+            height: height /1.9
         },
         serviceListBanner: {
             flexDirection: "row",
@@ -88,10 +88,13 @@ const stylesComponent = ()=>{
         serviceListBannerText: {
             fontWeight: '600',
             fontSize: 20,
-            marginTop: 40,
+            marginTop: 10,
         },
         serviceListBannerImage: {
-           width: 125,
+           width: 60,
+           height: 60,
+           resizeMode: 'contain',
+           marginRight: 30,
         },
         serviceList: {
             flexDirection: 'row',
@@ -110,7 +113,6 @@ const stylesComponent = ()=>{
             shadowOpacity: 0.3, 
             shadowRadius: 4, 
             elevation: 4, 
-            backgroundColor: '#FFF', 
             width: 90,
         },
         serviceIconImage: {

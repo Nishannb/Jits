@@ -6,6 +6,8 @@
 //
 
 #import "AppDelegate.h"
+#import "NotificationManager.h"
+
 
 @interface AppDelegate ()
 
@@ -15,9 +17,21 @@
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    // Override point for customization after application launch.
+
+  // Request notification permission
+      [NotificationManager requestNotificationPermissionWithCompletion:^(BOOL granted) {
+          if (granted) {
+              // Permission granted, schedule a notification
+              NSDate *scheduledDate = [NSDate dateWithTimeIntervalSinceNow:10]; // Schedule a notification 10 seconds from now
+              [NotificationManager scheduleNotificationWithTitle:@"New Notification" body:@"This is your first notification!" at:scheduledDate];
+          } else {
+              // Permission not granted
+              NSLog(@"Notification permission not granted.");
+          }
+      }];
     return YES;
 }
+
 
 
 #pragma mark - UISceneSession lifecycle

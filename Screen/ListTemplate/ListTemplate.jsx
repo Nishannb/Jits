@@ -12,7 +12,6 @@ const Listing = ({eachItem}) => {
 
   const handleSelection = async(eachItem)=>{
     if(eachItem?.url){
-      console.log('eachitem')
       return await Linking.openURL(eachItem.url)
     } else {
       setSelected(!selected)
@@ -21,7 +20,8 @@ const Listing = ({eachItem}) => {
 
   return (
     <TouchableOpacity onPress={()=>handleSelection(eachItem)} style={[styles.singleRecommendationContainer, {backgroundColor: selected ? 'lightblue': 'white'}]}>
-      {eachItem?.image && <Image source={eachItem.image} style={styles.singleRecommendationImage} />}
+      {eachItem?.image && eachItem?.category && <Image source={{uri: eachItem.image.toString()}} style={styles.singleRecommendationImage} />}
+      {eachItem?.image && !eachItem?.category && <Image source={{uri: eachItem.image.toString()}} style={styles.singleRecommendationImage} />}
       <View style={styles.singleRecommendationTextSection}>
       {eachItem?.guideTitle && <Text style={styles.singleRecommendationTextHeader}>{eachItem.guideTitle}</Text>}
       {eachItem?.name && <Text style={styles.singleRecommendationTextHeader}>{eachItem.name}</Text>}
@@ -59,7 +59,6 @@ const ListTemplate = ({route}) => {
        {!toDisplay && <TouchableOpacity style={styles.button} onPress={handleOrder}>
           <Text style={styles.buttonText}>Notify my host</Text>
        </TouchableOpacity>}
-            
     </View>
   );
 };

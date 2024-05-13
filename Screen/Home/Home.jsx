@@ -1,5 +1,6 @@
 import {View, Text, ScrollView, Image, TouchableOpacity, Alert} from 'react-native';
-import React from 'react';
+import React, { useContext, useEffect, useState } from 'react';
+import { PropertiesInfoContext } from '../../Components/Contexts/AllContext';
 import stylesComponent from './style';
 import living from '../../img/living.png';
 const bucket = require('../../img/bucket.png')
@@ -22,120 +23,40 @@ import houseRules from '../../img/houseRules.jpeg'
 import manual from '../../img/manual.jpeg'
 
 
-
-const guides = [
-  {
-    id: 1,
-    guideTitle: 'Check-Out guide',
-    image: manual,
-    url: 'https://i.pinimg.com/564x/0f/9c/42/0f9c42cdccb48f446dee9aa320b861e2.jpg'
-  },
-  {
-    id: 2,
-    guideTitle: 'Amenties guide',
-    image: amenties,
-    url: 'https://i.pinimg.com/564x/0f/9c/42/0f9c42cdccb48f446dee9aa320b861e2.jpg'
-  },
-  {
-    id: 3,
-    guideTitle: 'House rules',
-    image: houseRules,
-    url: 'https://i.pinimg.com/564x/0f/9c/42/0f9c42cdccb48f446dee9aa320b861e2.jpg'
-  },
-]
-
-const breakfast = [
-  {
-    id: 1,
-    name: "Continental Breakfast",
-    description: "A simple breakfast consisting of pastries, bread, butter, jam, yogurt, and fruit.",
-    price: "$20 per person",
-    includes: ["Assorted pastries", "Fresh bread", "Butter and jam", "Yogurt", "Fresh fruit", "Coffee and tea"],
-    image: conti
-  },
-  {
-    id: 2,
-    name: "American Breakfast",
-    description: "A hearty breakfast featuring eggs, bacon, sausage, hash browns, toast, and orange juice.",
-    price: "$25 per person",
-    includes: ["Scrambled or fried eggs", "Bacon", "Sausage links or patties", "Hash browns or home fries", "Toast or English muffin", "Orange juice"],
-    image: american
-  },
-  {
-    id: 3,
-    name: "Healthy Breakfast",
-    description: "A nutritious breakfast option with options like oatmeal, smoothies, avocado toast, and fresh fruit.",
-    price: "$25 per person",
-    includes: ["Oatmeal with toppings", "Smoothies with spinach and fruit", "Avocado toast with poached egg", "Greek yogurt with granola", "Fresh fruit platter", "Herbal tea"],
-    image: health
-  }
-];
-
-const rentalGear = [
-  {
-    id: 1,
-    name: "Bicycles",
-    description: "Explore the area on two wheels with our rental bicycles.",
-    price: "$20 per day",
-    includes: ["Mountain bikes", "Helmets", "Locks", "Map of local trails"],
-    image: bicycle
-  },
-  {
-    id: 2,
-    name: "Stand-up Paddleboards",
-    description: "Enjoy a day on the water with our rental stand-up paddleboards.",
-    price: "$30 per day",
-    includes: ["Inflatable paddleboards", "Paddles", "Life jackets", "Instructional guide"],
-    image: paddle
-  },
-  {
-    id: 3,
-    name: "Hiking Gear",
-    description: "Embark on an adventure with our rental hiking gear.",
-    price: "$15 per day",
-    includes: ["Backpacks", "Trekking poles", "Hiking boots", "Trail maps"],
-    image: hike
-  }
-];
-const services = [
-  {
-    id: 1,
-    serviceName: 'Cleaning',
-    image: bucket
-  },
-  {
-    id: 2,
-    serviceName: 'Breakfast',
-    image: diet,
-    options: breakfast
-  },
-  {
-    id: 3,
-    serviceName: 'Rental',
-    image: rental,
-    options: rentalGear
-  },
-  {
-    id: 4,
-    serviceName: 'Airport Shuttle',
-    image: shuttle
-  },
-  {
-    id: 5,
-    serviceName: 'Late Check-Out',
-    image: lateCheckout
-  },
-]
-
-
-const ServiceList = ({ service }) => {
+const ServiceList = ({ serviceName }) => {
   const styles = stylesComponent();
+
+  const { propertiesInfo, setPropertiesInfo } = useContext(PropertiesInfoContext)
+
+  const iconList = {
+    Rental: rental,
+    Cleaning: bucket,
+    'Food & Drinks': diet,
+    'Airport Shuttle': shuttle,
+    'Late-Checkout': lateCheckout
+  }
+
+  const handleNavigation = ()=>{
+
+    const resolvedServiceList = propertiesInfo[0].services
+      .filter(service => service.category === serviceName) // Filter services by category
+      .map(service => ({
+        name: service.name,
+        image: service.imageUrl,
+        price: service.price,
+        id: service._id,
+        category: service.category,
+        description: service.description
+      }));
+    return navigation.navigate('On-Demand Service', { list: resolvedServiceList})
+  }
+
 
   const navigation = useNavigation();
   return (
-    <TouchableOpacity style={styles.service} onPress={()=>navigation.navigate('On-Demand Service', { list: service.options ? service.options: [1,2,3,4]})}>
-      <Image style={styles.serviceIconImage} source={service.image} />
-      <Text style={styles.serviceText}>{service.serviceName}</Text>
+    <TouchableOpacity style={styles.service} onPress={handleNavigation}>
+      <Image style={styles.serviceIconImage} source={iconList[serviceName]} />
+      <Text style={styles.serviceText}>{serviceName}</Text>
     </TouchableOpacity>
   );
 };
@@ -143,21 +64,61 @@ const ServiceList = ({ service }) => {
 const Home = () => {
   const styles = stylesComponent();
 
+  const { propertiesInfo, setPropertiesInfo } = useContext(PropertiesInfoContext)
+  const [ services, setServices ] = useState()
   const navigation = useNavigation()
 
+  useEffect(()=>{
+    if(propertiesInfo.length != 0){
+      const categoryList = [...new Set(propertiesInfo[0].services.map(service => service.category))];
+      setServices(categoryList)
+    }
+  }, [propertiesInfo])
+
   const navigate = () =>{
-    return navigation.navigate('Guides', { list: guides, toDisplay: 'guide' })
+    const resolvedGuideList = propertiesInfo[0].guides.map(guide => ({
+      name: guide.name,
+      image: guide.img,
+      url: guide.url,
+      id: guide._id
+    }));
+    
+    console.log(resolvedGuideList)
+    return navigation.navigate('Guides', { list: resolvedGuideList, toDisplay: 'guide' })
   }
 
   const informStatus = (status) =>{
-    return Alert.alert(`Click OK to notify your host about your check-${status} status.`)
+    return Alert.alert(
+      `Check-${status} Status`,
+      `Inform your host about your check-${status} status.`,
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        { 
+          text: "OK", 
+          onPress: () => handleCheckInCheckOutStatus(status),
+        }
+      ]
+    );
   }
+
+  const handleCheckInCheckOutStatus = async(status)=>{
+    try {
+      // Try Axios 
+      console.log(status)
+    } catch (error) {
+      Alert.alert('Error', 'Something went wrong')
+    }
+  }
+
   return (
     <View style={styles.homeScreenContainer}>
-      <View style={styles.welcomeBannerSection}>
+      {propertiesInfo.length != 0 && <View style={styles.welcomeBannerSection}>
         <Text style={styles.welcomeText}>Welcome!</Text>
-        <Text style={styles.messageText}>You are in to YinYang Residence.</Text>
-      </View>
+        <Text style={styles.messageText}>{propertiesInfo[0].description}</Text>
+      </View>}
       <View style={styles.featureListContainer}>
           <TouchableOpacity style={styles.feature} onPress={navigate}>
             <Image source={guide} style={styles.featureIcon}/>
@@ -180,10 +141,10 @@ const Home = () => {
           </Text>
           <Image style={styles.serviceListBannerImage} source={living} />
         </View>
-        <Text style={{marginBottom: 20}}>Select your services</Text>
+        <Text style={{marginBottom: 10}}>Select your services</Text>
         <ScrollView contentContainerStyle={styles.serviceList}>
-          {services.map(service => (
-            <ServiceList key={service.id} service={service}  />
+          {services && services.map(serviceName => (
+            <ServiceList key={serviceName} serviceName={serviceName}  />
           ))}
         </ScrollView>
       </View>
